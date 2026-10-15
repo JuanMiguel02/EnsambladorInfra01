@@ -1,0 +1,4 @@
+write(1, "LA LEYENDA DEL REGISTRO v0.1\n", 29) = 29
+write(1, "Bienvenido, heroe. Tu aventura e"..., 45) = 45
+write(1, "El sistema operativo te despidio"..., 60) = 60
++++ exited with 0 +++

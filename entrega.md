@@ -44,7 +44,184 @@ Ejecuta `strace -e trace=write,exit_group ./clase01 2> trace1.txt` y responde (p
 2. ¿Cuál es el código de salida que devuelve `exit_group`?
 3. ¿Qué número de syscall usa `write`? (pista: mira la columna `syscall` o el `strace` completo).
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: A.1 — El despertar (Clase 1)
+
+## A.1.1. Compilación, enlazado y ejecucion
+
+
+
+### 1. Comando de compilación o ensamblado
+
+Desde el directorio `clase-01`, se ejecutó el siguiente comando:
+
+```bash
+nasm -f elf64 clase01.asm -o clase01.o
+```
+
+**Explicación:**
+
+- `nasm`: ejecuta el ensamblador NASM.
+- `-f elf64`: indica que el archivo objeto debe utilizar el formato ELF de 64 bits.
+- `clase01.asm`: es el archivo que contiene el código fuente en ensamblador.
+- `-o clase01.o`: establece el nombre del archivo objeto generado.
+
+La operación finalizó sin mostrar errores. Posteriormente, se verificó la existencia del archivo objeto:
+
+```bash
+ls -l clase01.o
+```
+
+Resultado obtenido:
+
+```text
+-rw-rw-r-- 1 ubuntu ubuntu 1248 Oct 14 21:16 clase01.o
+```
+
+Esto confirma que se generó el archivo `clase01.o`, con un tamaño de 1248 bytes.
+
+### 2. Comando de enlazado
+
+Después del ensamblado, se ejecutó:
+
+```bash
+ld clase01.o -o clase01
+```
+
+**Explicación:**
+
+- `ld`: ejecuta el enlazador.
+- `clase01.o`: es el archivo objeto que se va a enlazar.
+- `-o clase01`: indica que el ejecutable resultante se llamará `clase01`.
+
+El comando terminó sin mostrar errores. Para comprobar la generación del ejecutable, se utilizó:
+
+```bash
+ls -l clase01
+```
+
+Resultado obtenido:
+
+```text
+-rwxrwxr-x 1 ubuntu ubuntu 9112 Oct 14 21:17 clase01
+```
+
+El archivo se generó correctamente y cuenta con permisos de ejecución.
+
+### 3. Ejecución del programa
+
+Para ejecutar el programa se utilizó:
+
+```bash
+./clase01
+```
+
+**Salida completa obtenida:**
+
+```text
+LA LEYENDA DEL REGISTRO v0.1
+Bienvenido, heroe. Tu aventura empieza aqui.
+El sistema operativo te despidio con elegancia (código 0).
+```
+
+**Análisis de la salida:**
+
+El programa muestra tres mensajes consecutivos: el título de la aventura, el mensaje de bienvenida y la despedida. Estos textos están almacenados en la sección `.data` del código fuente y se imprimen mediante llamadas al sistema `write`.
+
+### 4. Verificación del código de salida
+
+Inmediatamente después de ejecutar el programa, se ejecutó:
+
+```bash
+echo $?
+```
+
+Resultado obtenido:
+
+```text
+0
+```
+
+**Explicación:**
+
+En Bash, `$?` contiene el código de salida del último comando ejecutado. El valor `0` indica que el programa terminó correctamente. Este resultado coincide con el código `0` que el programa establece en el registro `RDI` antes de ejecutar la llamada al sistema de terminación.
+
+Por lo tanto, se confirma que el ensamblado, el enlazado y la ejecución del programa fueron exitosos.
+
+---
+
+## A.1.2. Análisis de llamadas al sistema con `strace`
+
+### 1. Comando ejecutado
+
+Se ejecutó el siguiente comando, indicado en el enunciado:
+
+```bash
+strace -e trace=write,exit_group ./clase01 2> trace1.txt
+```
+
+**Explicación:**
+
+- `strace`: permite observar las llamadas al sistema realizadas por un proceso.
+- `-e trace=write,exit_group`: limita el seguimiento a las llamadas `write` y `exit_group`.
+- `./clase01`: ejecuta el programa que se va a analizar.
+- `2> trace1.txt`: redirige la salida de error estándar, donde `strace` escribe el seguimiento, al archivo `trace1.txt`.
+
+Los mensajes del programa continuaron apareciendo en la terminal, mientras que el seguimiento de las llamadas al sistema quedó almacenado en el archivo indicado.
+
+### 2. Salida obtenida en `trace1.txt`
+
+Para consultar el archivo se ejecutó:
+
+```bash
+cat trace1.txt
+```
+
+Salida obtenida:
+
+```text
+write(1, "LA LEYENDA DEL REGISTRO v0.1\n", 29) = 29
+write(1, "Bienvenido, heroe. Tu aventura e"..., 45) = 45
+write(1, "El sistema operativo te despidio"..., 60) = 60
++++ exited with 0 +++
+```
+
+La versión de `strace` utilizada abrevia parte de los mensajes largos mediante puntos suspensivos. Sin embargo, conserva la información necesaria para identificar las llamadas y comprobar cuántos bytes se escribieron.
+
+### 3. Respuestas a las preguntas
+
+**Pregunta 1. ¿Cuántas llamadas `write` hay en total?**
+
+Hay **3 llamadas `write`**. Cada una corresponde a la impresión de uno de los tres mensajes del programa: el título, la bienvenida y la despedida.
+
+En las tres llamadas se utiliza el descriptor de archivo `1`, que corresponde a la salida estándar (`stdout`).
+
+**Pregunta 2. ¿Cuál es el código de salida que devuelve `exit_group`?**
+
+El código de salida es **0**.
+
+En el archivo de seguimiento aparece:
+
+```text
++++ exited with 0 +++
+```
+
+Esta línea indica que el proceso terminó con código de salida `0`. Aunque esta versión de `strace` no muestra explícitamente `exit_group(0) = 0`, el resultado confirma la terminación exitosa del programa.
+
+**Pregunta 3. ¿Qué número de syscall utiliza `write`?**
+
+El número de syscall de `write` es **1** en Linux x86-64.
+
+Esto se comprueba en el código fuente `clase01.asm`, donde se carga el valor `1` en el registro `RAX` antes de cada llamada `syscall` destinada a escribir un mensaje:
+
+```asm
+mov rax, 1
+mov rdi, 1
+mov rsi, titulo
+mov rdx, len_titulo
+syscall
+```
+
+En este fragmento, `RAX` contiene el número de la llamada al sistema; `RDI` indica el descriptor de salida; `RSI` contiene la dirección del texto y `RDX` indica la cantidad de bytes que se deben escribir. ]
 
 ---
 
