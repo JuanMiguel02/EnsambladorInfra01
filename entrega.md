@@ -456,7 +456,8 @@ El resultado confirma que el programa terminó con código de salida `0`.
 - c) 60
 - d) 2
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: b) 1.** En Linux x86-64, la syscall `write` tiene el número 1 y se utiliza
+ para escribir información en la terminal. En la clase 1 se observa cuando se ejecuta `mov rax, 1` antes de `syscall`. ]
 
 ---
 
@@ -467,7 +468,9 @@ El resultado confirma que el programa terminó con código de salida `0`.
 - c) `rax`
 - d) `rdx`
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: c) `rax`.** Antes de ejecutar `syscall`, se coloca en `rax` el número
+ de la operación que se quiere solicitar al sistema operativo, como `1` para escribir o `60` para terminar el programa.
+ ]
 
 ---
 
@@ -478,7 +481,8 @@ El resultado confirma que el programa terminó con código de salida `0`.
 - c) `.bss`
 - d) `.rodata`
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: c) `.bss`.** Esta sección permite reservar espacio en memoria para variables sin
+ inicializar, usando instrucciones como `resb`. Por ejemplo, `resb 32` reserva 32 bytes para almacenar información. ]
 
 ---
 
@@ -489,7 +493,8 @@ El resultado confirma que el programa terminó con código de salida `0`.
 - c) El tamaño del buffer
 - d) El código de error
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: b) La cantidad de bytes leídos realmente.** Después de ejecutar `sys_read`, `rax` indica cuántos bytes recibió el programa.
+ Este valor puede ser menor que la capacidad del buffer, porque no siempre se llena por completo. ]
 
 ---
 
@@ -500,7 +505,8 @@ El resultado confirma que el programa terminó con código de salida `0`.
 - c) `cmp` + `jge`
 - d) `sub`
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: c) `cmp` + `jge`.** La instrucción `cmp` compara los valores y `jge` permite saltar
+ a otra parte del programa cuando se cumple la condición de que el primer valor es mayor o igual que el segundo. Así se decide entre ELITE y NOVATO según la lógica implementada. ]
 
 ---
 
