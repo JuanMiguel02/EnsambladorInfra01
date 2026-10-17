@@ -308,7 +308,136 @@ Escribe un programa **nuevo** (`examen/heroe.asm`) **sin usar libc** que:
 Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo y la salida al ejecutarlo con el nombre `Sauron`.
 
 > No copies la clase 2: el programa debe ser más corto (solo 4 `write`/`read` + `exit`).
+[RESOLVER AQUÍ: ## A.4 — Crear un programa desde cero.
 
+### 1. Código fuente: `heroe.asm`
+
+```nasm
+default rel
+
+section .data
+    mensaje db "Nombre: "
+    len_mensaje equ $ - mensaje
+    salto db 10
+
+section .bss
+    nombre resb 16
+
+section .text
+    global _start
+
+_start:
+    ; 1. Mostrar "Nombre: "
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [rel mensaje]
+    mov rdx, len_mensaje
+    syscall
+
+    ; 2. Leer hasta 16 bytes del teclado
+    mov rax, 0
+    mov rdi, 0
+    lea rsi, [rel nombre]
+    mov rdx, 16
+    syscall
+
+    ; Quitar el salto de linea que introduce Enter
+    test rax, rax
+    jle .sin_nombre
+    cmp byte [rsi + rax - 1], 10
+    jne .longitud_lista
+    dec rax
+
+.longitud_lista:
+    mov rdx, rax
+    jmp .mostrar_nombre
+
+.sin_nombre:
+    xor edx, edx
+
+.mostrar_nombre:
+    ; 3. Imprimir el nombre leido
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [rel nombre]
+    syscall
+
+    ; 4. Imprimir un salto de linea
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [rel salto]
+    mov rdx, 1
+    syscall
+
+    ; 5. Terminar con codigo de salida 0
+    mov rax, 60
+    mov rdi, 0
+    syscall
+```
+
+### 2. Compilación y enlazado
+
+Desde el directorio raíz del repositorio se ejecutaron los siguientes comandos:
+
+```bash
+nasm -f elf64 heroe.asm -o heroe.o
+ld heroe.o -o heroe
+```
+
+El primer comando ensambla el código fuente y genera el archivo objeto `heroe.o`. El segundo enlaza el archivo objeto para producir el ejecutable `heroe`.
+
+La comprobación de los archivos generados fue:
+
+```text
+-rwxrwxr-x 1 ubuntu ubuntu 9128 Oct 16 21:18 heroe
+-rw-rw-r-- 1 ubuntu ubuntu  769 Oct 16 21:18 heroe.asm
+-rw-rw-r-- 1 ubuntu ubuntu 1328 Oct 16 21:18 heroe.o
+```
+
+La compilación y el enlazado finalizaron sin mostrar errores.
+
+### 3. Ejecución y resultado
+
+Se ejecutó el programa con:
+
+```bash
+./heroe
+```
+
+Se introdujo `Sauron` por teclado y se pulsó Enter. El resultado observado fue:
+
+```text
+Nombre: Sauron
+Sauron
+```
+
+La primera línea incluye el mensaje `Nombre: ` y el nombre que el terminal muestra al escribirlo. La segunda línea corresponde al nombre que imprime el propio programa.
+
+### 4. Verificación del código de salida
+
+Después de la ejecución se utilizó:
+
+```bash
+echo $?
+```
+
+Resultado:
+
+```text
+0
+```
+
+El resultado confirma que el programa terminó con código de salida `0`.
+
+### 5. Explicación del funcionamiento
+
+- **Sección `.data`:** contiene el mensaje `Nombre: ` y el carácter de salto de línea, representado por el byte `10`.
+- **Sección `.bss`:** reserva 16 bytes para almacenar el nombre mediante `resb 16`.
+- **Llamada `write`:** utiliza el número de sistema `1` para mostrar información en la salida estándar.
+- **Llamada `read`:** utiliza el número `0` para leer la entrada estándar y guardar los bytes en el buffer.
+- **Tratamiento del salto de línea:** se comprueba si el último byte leído es `10`. Si corresponde al Enter, se reduce la longitud para no imprimir ese carácter como parte del nombre.
+- **Finalización:** la llamada al sistema `exit`, identificada por el número `60`, termina el programa con código `0`.
+]
 ---
 
 # PARTE B — TEORÍA: preguntas (40 pts)
