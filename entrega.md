@@ -394,6 +394,10 @@ _start:
 
 [RESOLVER AQUÍ: ]
 
+1. El programa imprimirá en pantalla el texto `"HOLA"`. En este caso, despues del texto habrá un salto de línea "\n".
+2. El código termina con el código de salida **3**. Este valor realmente no tiene un significado particular para sistema operativo, es simplemente un valor arbitrario que se decidió retornar.
+3. El programa realiza 2 llamadas al kernel (`syscall`), una para imprimir en pantalla (`sys_write`) y otra para finalizarlo (`sys_exit`).
+
 ---
 
 ## B.4 — Encuentra el error (4 pts)
