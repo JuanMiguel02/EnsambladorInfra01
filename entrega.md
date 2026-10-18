@@ -429,6 +429,29 @@ _start:
 > imprimible?
 
 [RESOLVER AQUÍ: ]
+### Solución
+```asm
+section .bss
+    d resb 1
+
+section .text
+    global _start
+_start:
+    mov al, 7          ; el número a imprimir
+    add al, '0'        ; faltaba convertir el numero a ASCII
+    mov [rel d], al    ; guardar el carácter
+    mov rax, 1         ; sys_write
+    mov rdi, 1         ; std_out
+    mov rsi, d         ; direccion del byte
+    mov rdx, 1         ; longitud: 1 byte
+    syscall
+    mov rax, 60        ; sys_exit
+    mov rdi, 0         ; codigo de salida
+    syscall
+```
+Para que el código imprimiera el `7`, faltaba convertir el número a `ASCII`, esto de puede hacer sumando el código ASCII de `0` (que es `48`). Ensamblador traduce automáticamente '0' a su carácter ASCII.
+
+**NOTA:** En este caso se usa **rel**, que solicita direccionamiento relativo a RIP, que es una forma apropiada para código x86-64, si no se usa NASM genera una advertencia sobre DEFAULT ABS y de este modo la evitamos.
 
 ---
 
