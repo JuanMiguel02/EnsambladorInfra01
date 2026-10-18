@@ -87,15 +87,67 @@ Compila la clase 3 y ejecútala con las **cinco** combinaciones de (FUE, AGI) de
 
 | Caso | FUE | AGI | ¿ELITE o NOVATO o ERROR? | Código salida (`$?`) |
 |------|-----|-----|--------------------------|----------------------|
-| 1    | 3   | 5   |                          |                      |
-| 2    | 0   | 9   |                          |                      |
-| 3    | 9   | 9   |                          |                      |
-| 4    | 0   | 0   |                          |                      |
-| 5    | `x` | 5   |                          |                      |
+| 1    | 3   | 5   |          Elite           |            0         |
+| 2    | 0   | 9   |          Elite           |            0         |
+| 3    | 9   | 9   |          Error           |            1         |
+| 4    | 0   | 0   |          Novato          |            0         |
+| 5    | `x` | 5   |          Novato          |            0         |
 
 > Caso 5: en lugar de un dígito, escribe la letra `x`.
 
 [RESOLVER AQUÍ: ¿Qué hace el programa con la letra `x`? ¿Por qué no se rompe?]
+
+Si se analiza el código de la clase03.asm, podemos observar que el siguiente fragmento de código
+se encarga de validar el registro de **FUEGO**:
+
+```nasm
+   ; ---------- Accion 4: LEER y validar FUE (0 a 9) ----------
+   ; Si no es un digito, FUE queda en 0 (el heroe no se rompe).
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, buf
+    mov rdx, 2
+    syscall
+    cmp rax, 0
+    je .fue_vacio
+    cmp byte [buf], 48
+    jb .fue_vacio
+    cmp byte [buf], 57
+    ja .fue_vacio
+    mov al, byte [buf]
+    sub al, 48
+    mov [v_fue], al
+    jmp .fue_leido
+.fue_vacio:
+    mov byte [v_fue], 0
+.fue_leido:
+```
+
+### ¿Cómo funciona?
+Estas instrucciones controlan el flujo de ejecución del programa. En lugar de ejecutar el código línea por línea en orden secuencial, permiten saltar a distintas etiquetas del código. En este caso, se usan después de una instrucción de comparación **(cmp)**, básicamente funcionan como las estructuras if, else y else if de los lenguajes de alto nivel.
+
+El próposito de cada instrucción se muestra en la siguiente tabla:
+
+| Instrucción | Significado     | Condición en cmp A, B       | 
+|------       |-----            |-----                        |
+| cmp A, B    | Compara A con B | Configura las banderas      | 
+| je etiqueta | Jump if Equal   | A == B                      | 
+| ja etiqueta | Jump if Above   | A > B                       |
+| jb etiqueta | Jump ifBelow    | A < B                       |
+| jmp etiqueta| Jump            | Salto directo sin condición |
+
+**Nota:** En ensamblador no existe el concepto de tiós de datos. El procesador solo maneja números binarios y bytes almacenados en memoria o registros. Cuando se lee una entrada desde la terminal, el kernel guarda el código ASCII del carácter que se presionó.
+
+Teniendo esto en cuenta, lo que pasa al escribir la letra `x` es lo siguiente:
+
+1. Se lee la entrada del usuario **(sys_read)**, en este caso se guarda en la variable reservada **buf** que guarda 2 bytes. **buf[0]** guarda el cáracter `x` (cuyo código ASCII es 120), **buf[1]** guarda el salto de línea \n y **rax** recibe 2 (el número de bytes leídos)
+2. Se evalua la llamada **cmp rax, 0**, la cual compara si se leyeron 0 bytes, pero como **rax** vale 2, no es igual a 0. No salta en **je .fue_vacio**
+3. Se evalua el límite inferior **cmp byte [buf], 48**. Compara el primer byte de **buf** (120) con 48 (ASCII DE '0'). Como 120 no es menor que 49, la condición **jb. fue_vacio** es falsa y el programa no salta aquí.
+4. Se evalua el límite superior **cmp byte [buf], 57**. Compara el primer byte de **buf** (120) con 57 (ASCII de '9'). Como 120 sí es mayor que 57, la condición **ja** es verdadera, por lo tanto el programa salta a **.fue_vacio**
+5. Al saltar a **.fue_vacio**, se ejecuta **mov byte [v_fue], 0**. Esta línea le asigna por defecto el valor de 0 a la variable que guarda el valor de fuego ingresado, en consecuancia, cualquier carácter no numérico fuera del rango ASCII 48 - 57 resulta en **v_fue = 0**
+
+Gracias a este uso de condicionales, el programa no falla en caso de que el usuario ingrese un valor no númerico o que se encuentre fuera del rango establecido.
+
 
 ### A.3.2 (6 pts)
 Con `strace -e trace=write,read,exit_group ./clase03`, usando FUE=8, AGI=2 (pega el `strace` en `entrega.md`), responde:
@@ -106,6 +158,41 @@ Con `strace -e trace=write,read,exit_group ./clase03`, usando FUE=8, AGI=2 (pega
 
 [RESOLVER AQUÍ: ]
 
+### Salida del comando strace 
+
+```nasm
+strace -e trace=write,read,exit_group ./clase03
+
+write(1, "LA LEYENDA DEL REGISTRO v0.3\n", 29LA LEYENDA DEL REGISTRO v0.3
+) = 29
+write(1, "Tienes 9 puntos para repartir. E"..., 62Tienes 9 puntos para repartir. El resto se vuelve vida (VID).
+) = 62
+write(1, "FUE (fuerza, 0 a 9): ", 21FUE (fuerza, 0 a 9): )   = 21
+read(08
+, "8\n", 2)                       = 2
+write(1, "AGI (agilidad, 0 a 9): ", 23AGI (agilidad, 0 a 9): ) = 23
+read(02
+, "2\n", 2)                       = 2
+write(1, "Error: no te alcanzan los 9 punt"..., 36Error: no te alcanzan los 9 puntos.
+) = 36
++++ exited with 1 +++
+```
+1. Se realizan **5** llamadas `write` en el programa
+    * Llamada 1: **write(1, "LA LEYENDA DEL REGISTRO v0.3\n", 29) escr**ibe en pantalla el texto `"LA LEYENDA DEL REGISTRO v0.3"`
+    * LLamada 2: **write(1, "Tienes 9 puntos para repartir. E"..., 62)** escribe en pantalla el texto `"Tienes 9 puntos para repartir. El resto se vuelve vida (VID)."`
+    * Llamada 3: **write(1, "FUE (fuerza, 0 a 9): ", 21)** escribe en pantalla el texto `"FUE (fuerza, 0 a 9):"`
+    * LLamada 4: **write(1, "AGI (agilidad, 0 a 9): ", 23)** escribe en pantalla el texto `"AGI (agilidad, 0 a 9):"`
+    * LLamada 5. **write(1, "Error: no te alcanzan los 9 punt"..., 36)** escribe eb pantalla el texto de error, ya que que sobrepasamos el límite de puntos permitidos: `"Error: no te alcanzan los 9 puntos."`
+
+
+2. Se realizan **2** llamadas `read` en el programa, encargadas de leer los valores de Fuego y Agilidad
+3. La razón por la que `read` devuelve **2** es porque cuando se presiona una tecla y luego Enter, la terminal le envía al programa dos caracteres consecutivos:
+    * El carácter que se escribió, por ejemplo 8
+    * La tecla Enter envía el salto de línea
+
+    Entonces el valor que devuelve `read` indica la cantidad de bytes leídos, en este caso es **2**
+
+
 ### A.3.3 (6 pts) — Modificación obligatoria
 Implementa el **Ejercicio 1** de la clase 3 ("El heroe se enfada"): si FUE es 0, muestra la frase
 `"Un heroe sin fuerza no es heroe."` y sigue el flujo normal.
@@ -115,6 +202,59 @@ Requisitos:
 - Usa `cmp byte [v_fue], 0` y un salto `je` a un bloque nuevo `.sin_fuerza`.
 - El programa debe seguir imprimiendo el bloque de atributos y terminar con código 0.
 - Pega en `entrega.md` las líneas que agregaste y la salida completa con FUE=0, AGI=3.
+
+### Modificaciones
+
+```nasm
+    ;en section.data
+ sin_fuerza db "Un heroe sin fuerza no es heroe", 10 ;mensaje nuevo
+ len_sin_fuerza equ $ - sin_fuerza ;longitud de bytes
+
+  ; ---------- Accion 4: LEER y validar FUE (0 a 9) ----------
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, buf
+    mov rdx, 2
+    syscall
+    cmp rax, 0
+    je .fue_vacio
+    cmp byte [buf], 48
+    jb .fue_vacio
+    cmp byte [buf], 57
+    ja .fue_vacio
+    mov al, byte [buf]
+    sub al, 48
+    mov [v_fue], al
+    jmp .fue_leido
+.fue_vacio:
+    mov byte [v_fue], 0
+.fue_leido:
+    ;bloque de instrucciones nuevo
+    cmp byte [v_fue], 0
+    je .sin_fuerza
+.sin_fuerza:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, sin_fuerza
+    mov rdx, len_sin_fuerza
+    syscall
+```
+### Salida del programa
+```nasm
+LA LEYENDA DEL REGISTRO v0.3
+Tienes 9 puntos para repartir. El resto se vuelve vida (VID).
+FUE (fuerza, 0 a 9): 0
+Un heroe sin fuerza no es heroe
+AGI (agilidad, 0 a 9): 3
+El heroe sigue siendo NOVATO: hay margen para crecer.
+FUE: 0
+AGI: 3
+VID: 6
+Puntos gastados: 3
+Nivel: 1
+Los atributos quedaron grabados en los registros del heroe.
+```
+**Código de salida: 0**
 
 ---
 
