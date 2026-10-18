@@ -44,7 +44,184 @@ Ejecuta `strace -e trace=write,exit_group ./clase01 2> trace1.txt` y responde (p
 2. ¿Cuál es el código de salida que devuelve `exit_group`?
 3. ¿Qué número de syscall usa `write`? (pista: mira la columna `syscall` o el `strace` completo).
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: A.1 — El despertar (Clase 1)
+
+## A.1.1. Compilación, enlazado y ejecucion
+
+
+
+### 1. Comando de compilación o ensamblado
+
+Desde el directorio `clase-01`, se ejecutó el siguiente comando:
+
+```bash
+nasm -f elf64 clase01.asm -o clase01.o
+```
+
+**Explicación:**
+
+- `nasm`: ejecuta el ensamblador NASM.
+- `-f elf64`: indica que el archivo objeto debe utilizar el formato ELF de 64 bits.
+- `clase01.asm`: es el archivo que contiene el código fuente en ensamblador.
+- `-o clase01.o`: establece el nombre del archivo objeto generado.
+
+La operación finalizó sin mostrar errores. Posteriormente, se verificó la existencia del archivo objeto:
+
+```bash
+ls -l clase01.o
+```
+
+Resultado obtenido:
+
+```text
+-rw-rw-r-- 1 ubuntu ubuntu 1248 Oct 14 21:16 clase01.o
+```
+
+Esto confirma que se generó el archivo `clase01.o`, con un tamaño de 1248 bytes.
+
+### 2. Comando de enlazado
+
+Después del ensamblado, se ejecutó:
+
+```bash
+ld clase01.o -o clase01
+```
+
+**Explicación:**
+
+- `ld`: ejecuta el enlazador.
+- `clase01.o`: es el archivo objeto que se va a enlazar.
+- `-o clase01`: indica que el ejecutable resultante se llamará `clase01`.
+
+El comando terminó sin mostrar errores. Para comprobar la generación del ejecutable, se utilizó:
+
+```bash
+ls -l clase01
+```
+
+Resultado obtenido:
+
+```text
+-rwxrwxr-x 1 ubuntu ubuntu 9112 Oct 14 21:17 clase01
+```
+
+El archivo se generó correctamente y cuenta con permisos de ejecución.
+
+### 3. Ejecución del programa
+
+Para ejecutar el programa se utilizó:
+
+```bash
+./clase01
+```
+
+**Salida completa obtenida:**
+
+```text
+LA LEYENDA DEL REGISTRO v0.1
+Bienvenido, heroe. Tu aventura empieza aqui.
+El sistema operativo te despidio con elegancia (código 0).
+```
+
+**Análisis de la salida:**
+
+El programa muestra tres mensajes consecutivos: el título de la aventura, el mensaje de bienvenida y la despedida. Estos textos están almacenados en la sección `.data` del código fuente y se imprimen mediante llamadas al sistema `write`.
+
+### 4. Verificación del código de salida
+
+Inmediatamente después de ejecutar el programa, se ejecutó:
+
+```bash
+echo $?
+```
+
+Resultado obtenido:
+
+```text
+0
+```
+
+**Explicación:**
+
+En Bash, `$?` contiene el código de salida del último comando ejecutado. El valor `0` indica que el programa terminó correctamente. Este resultado coincide con el código `0` que el programa establece en el registro `RDI` antes de ejecutar la llamada al sistema de terminación.
+
+Por lo tanto, se confirma que el ensamblado, el enlazado y la ejecución del programa fueron exitosos.
+
+---
+
+## A.1.2. Análisis de llamadas al sistema con `strace`
+
+### 1. Comando ejecutado
+
+Se ejecutó el siguiente comando, indicado en el enunciado:
+
+```bash
+strace -e trace=write,exit_group ./clase01 2> trace1.txt
+```
+
+**Explicación:**
+
+- `strace`: permite observar las llamadas al sistema realizadas por un proceso.
+- `-e trace=write,exit_group`: limita el seguimiento a las llamadas `write` y `exit_group`.
+- `./clase01`: ejecuta el programa que se va a analizar.
+- `2> trace1.txt`: redirige la salida de error estándar, donde `strace` escribe el seguimiento, al archivo `trace1.txt`.
+
+Los mensajes del programa continuaron apareciendo en la terminal, mientras que el seguimiento de las llamadas al sistema quedó almacenado en el archivo indicado.
+
+### 2. Salida obtenida en `trace1.txt`
+
+Para consultar el archivo se ejecutó:
+
+```bash
+cat trace1.txt
+```
+
+Salida obtenida:
+
+```text
+write(1, "LA LEYENDA DEL REGISTRO v0.1\n", 29) = 29
+write(1, "Bienvenido, heroe. Tu aventura e"..., 45) = 45
+write(1, "El sistema operativo te despidio"..., 60) = 60
++++ exited with 0 +++
+```
+
+La versión de `strace` utilizada abrevia parte de los mensajes largos mediante puntos suspensivos. Sin embargo, conserva la información necesaria para identificar las llamadas y comprobar cuántos bytes se escribieron.
+
+### 3. Respuestas a las preguntas
+
+**Pregunta 1. ¿Cuántas llamadas `write` hay en total?**
+
+Hay **3 llamadas `write`**. Cada una corresponde a la impresión de uno de los tres mensajes del programa: el título, la bienvenida y la despedida.
+
+En las tres llamadas se utiliza el descriptor de archivo `1`, que corresponde a la salida estándar (`stdout`).
+
+**Pregunta 2. ¿Cuál es el código de salida que devuelve `exit_group`?**
+
+El código de salida es **0**.
+
+En el archivo de seguimiento aparece:
+
+```text
++++ exited with 0 +++
+```
+
+Esta línea indica que el proceso terminó con código de salida `0`. Aunque esta versión de `strace` no muestra explícitamente `exit_group(0) = 0`, el resultado confirma la terminación exitosa del programa.
+
+**Pregunta 3. ¿Qué número de syscall utiliza `write`?**
+
+El número de syscall de `write` es **1** en Linux x86-64.
+
+Esto se comprueba en el código fuente `clase01.asm`, donde se carga el valor `1` en el registro `RAX` antes de cada llamada `syscall` destinada a escribir un mensaje:
+
+```asm
+mov rax, 1
+mov rdi, 1
+mov rsi, titulo
+mov rdx, len_titulo
+syscall
+```
+
+En este fragmento, `RAX` contiene el número de la llamada al sistema; `RDI` indica el descriptor de salida; `RSI` contiene la dirección del texto y `RDX` indica la cantidad de bytes que se deben escribir. ]
 
 ---
 
@@ -271,7 +448,136 @@ Escribe un programa **nuevo** (`examen/heroe.asm`) **sin usar libc** que:
 Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo y la salida al ejecutarlo con el nombre `Sauron`.
 
 > No copies la clase 2: el programa debe ser más corto (solo 4 `write`/`read` + `exit`).
+[RESOLVER AQUÍ: ## A.4 — Crear un programa desde cero.
 
+### 1. Código fuente: `heroe.asm`
+
+```nasm
+default rel
+
+section .data
+    mensaje db "Nombre: "
+    len_mensaje equ $ - mensaje
+    salto db 10
+
+section .bss
+    nombre resb 16
+
+section .text
+    global _start
+
+_start:
+    ; 1. Mostrar "Nombre: "
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [rel mensaje]
+    mov rdx, len_mensaje
+    syscall
+
+    ; 2. Leer hasta 16 bytes del teclado
+    mov rax, 0
+    mov rdi, 0
+    lea rsi, [rel nombre]
+    mov rdx, 16
+    syscall
+
+    ; Quitar el salto de linea que introduce Enter
+    test rax, rax
+    jle .sin_nombre
+    cmp byte [rsi + rax - 1], 10
+    jne .longitud_lista
+    dec rax
+
+.longitud_lista:
+    mov rdx, rax
+    jmp .mostrar_nombre
+
+.sin_nombre:
+    xor edx, edx
+
+.mostrar_nombre:
+    ; 3. Imprimir el nombre leido
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [rel nombre]
+    syscall
+
+    ; 4. Imprimir un salto de linea
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [rel salto]
+    mov rdx, 1
+    syscall
+
+    ; 5. Terminar con codigo de salida 0
+    mov rax, 60
+    mov rdi, 0
+    syscall
+```
+
+### 2. Compilación y enlazado
+
+Desde el directorio raíz del repositorio se ejecutaron los siguientes comandos:
+
+```bash
+nasm -f elf64 heroe.asm -o heroe.o
+ld heroe.o -o heroe
+```
+
+El primer comando ensambla el código fuente y genera el archivo objeto `heroe.o`. El segundo enlaza el archivo objeto para producir el ejecutable `heroe`.
+
+La comprobación de los archivos generados fue:
+
+```text
+-rwxrwxr-x 1 ubuntu ubuntu 9128 Oct 16 21:18 heroe
+-rw-rw-r-- 1 ubuntu ubuntu  769 Oct 16 21:18 heroe.asm
+-rw-rw-r-- 1 ubuntu ubuntu 1328 Oct 16 21:18 heroe.o
+```
+
+La compilación y el enlazado finalizaron sin mostrar errores.
+
+### 3. Ejecución y resultado
+
+Se ejecutó el programa con:
+
+```bash
+./heroe
+```
+
+Se introdujo `Sauron` por teclado y se pulsó Enter. El resultado observado fue:
+
+```text
+Nombre: Sauron
+Sauron
+```
+
+La primera línea incluye el mensaje `Nombre: ` y el nombre que el terminal muestra al escribirlo. La segunda línea corresponde al nombre que imprime el propio programa.
+
+### 4. Verificación del código de salida
+
+Después de la ejecución se utilizó:
+
+```bash
+echo $?
+```
+
+Resultado:
+
+```text
+0
+```
+
+El resultado confirma que el programa terminó con código de salida `0`.
+
+### 5. Explicación del funcionamiento
+
+- **Sección `.data`:** contiene el mensaje `Nombre: ` y el carácter de salto de línea, representado por el byte `10`.
+- **Sección `.bss`:** reserva 16 bytes para almacenar el nombre mediante `resb 16`.
+- **Llamada `write`:** utiliza el número de sistema `1` para mostrar información en la salida estándar.
+- **Llamada `read`:** utiliza el número `0` para leer la entrada estándar y guardar los bytes en el buffer.
+- **Tratamiento del salto de línea:** se comprueba si el último byte leído es `10`. Si corresponde al Enter, se reduce la longitud para no imprimir ese carácter como parte del nombre.
+- **Finalización:** la llamada al sistema `exit`, identificada por el número `60`, termina el programa con código `0`.
+]
 ---
 
 # PARTE B — TEORÍA: preguntas (40 pts)
@@ -290,7 +596,8 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 - c) 60
 - d) 2
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: b) 1.** En Linux x86-64, la syscall `write` tiene el número 1 y se utiliza
+ para escribir información en la terminal. En la clase 1 se observa cuando se ejecuta `mov rax, 1` antes de `syscall`. ]
 
 ---
 
@@ -301,7 +608,9 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 - c) `rax`
 - d) `rdx`
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: c) `rax`.** Antes de ejecutar `syscall`, se coloca en `rax` el número
+ de la operación que se quiere solicitar al sistema operativo, como `1` para escribir o `60` para terminar el programa.
+ ]
 
 ---
 
@@ -312,7 +621,8 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 - c) `.bss`
 - d) `.rodata`
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: c) `.bss`.** Esta sección permite reservar espacio en memoria para variables sin
+ inicializar, usando instrucciones como `resb`. Por ejemplo, `resb 32` reserva 32 bytes para almacenar información. ]
 
 ---
 
@@ -323,7 +633,8 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 - c) El tamaño del buffer
 - d) El código de error
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: b) La cantidad de bytes leídos realmente.** Después de ejecutar `sys_read`, `rax` indica cuántos bytes recibió el programa.
+ Este valor puede ser menor que la capacidad del buffer, porque no siempre se llena por completo. ]
 
 ---
 
@@ -334,7 +645,8 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 - c) `cmp` + `jge`
 - d) `sub`
 
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ:**Respuesta: c) `cmp` + `jge`.** La instrucción `cmp` compara los valores y `jge` permite saltar
+ a otra parte del programa cuando se cumple la condición de que el primer valor es mayor o igual que el segundo. Así se decide entre ELITE y NOVATO según la lógica implementada. ]
 
 ---
 
