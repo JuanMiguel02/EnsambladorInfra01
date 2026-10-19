@@ -821,20 +821,25 @@ syscall
 
  **Respuesta:**
 ```asm
-mov rax, 0
-mov rdi, 0
-mov rsi, b
-mov rdx, 2
-syscall
+section .bss
+	b resb 2
+	n resb 1
 
-cmp byte [b], 48
-jb .mal
-cmp byte [b], 57
-ja .mal
+section .text
+	mov rax, 0
+	mov rdi, 0
+	mov rsi, b
+	mov rdx, 2
+	syscall
 
-mov al, byte [b]
-sub al, 48
-mov [n], al
+	cmp byte [b], 48
+	jb .mal
+	cmp byte [b], 57
+	ja .mal
+
+	mov al, byte [b]
+	sub al, 48
+	mov [n], al
 ```
 ---
 
