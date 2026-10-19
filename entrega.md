@@ -149,7 +149,7 @@ Por lo tanto, se confirma que el ensamblado, el enlazado y la ejecución del pro
 
 ---
 
-## A.1.2. Análisis de llamadas al sistema con `strace`
+https://github.com/JuanMiguel02/EnsambladorInfra01.githttps://github.com/JuanMiguel02/EnsambladorInfra01.git## A.1.2. Análisis de llamadas al sistema con `strace`
 
 ### 1. Comando ejecutado
 
@@ -236,7 +236,217 @@ Compila y ejecuta la clase 2 con **tres** nombres distintos:
 
 Documenta la salida de cada caso en `entrega.md`.
 
+****************************************************
+
+**Pregunta 1. Un nombre corto (<= 5 letras)**
+
+1. Desde el directorio clase-02, se ejecutó el script de compilacion y ejecucion automatica:
+
+./compilar.sh
+
+## Explicacion ##
+
+El script ./compila.sh realiza en un solo paso las siguientes tareas:
+
+Ensamblado: nasm -f elf64 clase02.asm -o clase02.o (traduce el código fuente a formato objeto ELF de 64 bits).
+
+Enlazado: ld clase02.o -o clase02 (genera el ejecutable final).
+
+Ejecución: ./clase02 (inicia el programa para recibir el nombre por teclado).
+
+2. Entrada inducida:
+
+Nombre ingresado: Jose
+
+3. Salida completa obtenida:
+
+== Ensamblando (traduciendo asm -> binario) ==
+== Enlazando (creando el ejecutable) ==
+== Ejecutando (escribe el nombre del heroe y presiona Enter) ==
+LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+jose
+Bienvenido al reino, jose
+Tu nombre ya vive en la memoria del proceso.
+== Codigo de salida: 0 ==
+
+4. Analisis tecnico de la salida:
+
+- Lectura mediante sys_ read : Al escribir jose y pulsar Enter, la llamada al sistema sys_read (RAX = 0, RDI = 0) almacena 5 bytes en el buffer nombre:
+ los 4 caracteres ASCII (j, o, s, e) más el byte 10 correspondiente al salto de línea (\n) enviado por la tecla Enter.
+
+- Tratamiento del salto de línea: En la Acción 4 del código, el programa comprueba si el último byte leído es igual a 10 (cmp byte [nombre + rax - 1], 10).
+Al ser verdadero, decrementa RAX (dec rax), ajustando la longitud real del nombre a 4 y guardando este valor en la variable [lon].
+
+- Impresión mediante sys_ write: El programa realiza tres llamadas a sys_write consecutivas:
+
+* Muestra el texto de saludo fijo saludo ("Bienvenido al reino, ").
+
+* Muestra los 4 bytes del buffer nombre utilizando el valor de [lon] en el registro RDX. 
+
+* Imprime un único salto de línea final para mantener el formato limpio
+
+5. Verificacion de la salida:
+
+Inmediatamente después de la ejecución, se verificó el código devuelto al entorno:
+
+echo $?
+
+Resultado obtenido:
+
+0
+
+**Explicación:**
+
+El valor 0 confirma que el programa terminó de manera exitosa a través de la llamada al sistema sys_exit (RAX = 60, RDI = 0).
+
+
+**Pregunta 2: un nombre de 31 letras**
+
+1. Comando ejecutado y compilación:
+
+Desde la carpeta clase-02, se ejecutó nuevamente el script de automatización:
+
+./compilar.sh
+
+**Explicación:**
+
+El script ensambla el código fuente clase02.asm mediante NASM, genera el objeto clase02.o, 
+enlaza con ld produciendo el ejecutable clase02 e inicia inmediatamente su ejecución.
+
+2. Entrada introducida:
+
+Nombre ingresado: juanCarlosAlejandroFernandezLopez (se escriben 33 caracteres en total incluyendo los caracteres excedentes z y la tecla Enter).
+
+3. Salida completa obtenida: 
+
+== Ensamblando (traduciendo asm -> binario) ==
+== Enlazando (creando el ejecutable) ==
+== Ejecutando (escribe el nombre del heroe y presiona Enter) ==
+LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+juanCarlosAlejandroFernandezLopez
+Bienvenido al reino, juanCarlosAlejandroFernandezLope
+Tu nombre ya vive en la memoria del proceso.
+== Codigo de salida: 0 ==
+ubuntu@inclusive-hornbill:~/proyectos/EnsambladorInfra01/clase-02$ z
+z: command not found
+
+4. Análisis técnico de la salida
+
+- Límite de lectura con sys_ read: En el código fuente clase02.asm, la lectura por teclado está configurada con mov rdx, 32. Por lo tanto,
+el kernel solo copia los primeros 32 bytes desde la entrada estándar (stdin) hacia la sección .bss (nombre resb 32).
+
+- Ausencia de salto de línea en el buffer: Los 32 bytes almacenados corresponden exactamente al texto juanCarlosAlejandroFernandezLope.
+Como el número de caracteres ingresados superó el límite del buffer antes de llegar al Enter, el byte 10 (\n) no entró dentro del arreglo reservado.
+
+- Evaluación de la condición LF: La rutina comprueba si el último byte leído es 10 (cmp byte [nombre + rax - 1], 10).
+Dado que el último byte guardado es la letra e (código ASCII 101),
+la condición de salto de línea no se cumple, por lo que RAX no se decrementa y la variable [lon] se fija en 32.
+
+- Impresión del saludo: sys_write imprime la frase fija y posteriormente los 32 bytes almacenados en nombre,
+mostramos en pantalla únicamente juanCarlosAlejandroFernandezLope.
+
+- Comportamiento en el Shell (z: command not found): El carácter excedente z junto con el salto de línea generado por Enter se quedaron esperando
+en la cola de la entrada estándar (stdin). Tan pronto como el programa terminó su ejecución, la consola Bash recuperó el control,
+leyó automáticamente el carácter z pendiente en stdin e intentó ejecutarlo como una orden del sistema. 
+
+5. Verificación del código de salida:
+
+El programa finaliza de forma correcta respecto al proceso:
+
+echo $?
+
+Resultado obtenido:
+
+0
+
+**Explicación:**
+
+El proceso del programa termina limpiamente con código 0 vía sys_exit.
+El mensaje de error posterior pertenece a la terminal Bash al intentar interpretar el sobrante en el búfer de entrada.
+
+
+
+**Pregunta 3: Nombre de 40 letras**
+
+1. Comando ejecutado y compilación:
+
+Desde el directorio clase-02, se ejecutó nuevamente el script de automatización:
+
+./compilar.sh
+
+**Explicacion**
+
+El script vuelve a compilar el código fuente mediante NASM (nasm -f elf64 clase02.asm -o clase02.o),
+enlaza el archivo objeto con ld (ld clase02.o -o clase02) y ejecuta el ejecutable generado.
+
+2. Entrada introducida:
+
+Nombre ingresado: JuanCarlosAlejandroFernandezGonzalez (se introducen 36 caracteres en la terminal más la tecla Enter).
+
+3. Salida obtenida:
+
+== Ensamblando (traduciendo asm -> binario) ==
+== Enlazando (creando el ejecutable) ==
+== Ejecutando (escribe el nombre del heroe y presiona Enter) ==
+LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+JuanCarlosAlejandroFernandezGonzalez
+Bienvenido al reino, JuanCarlosAlejandroFernandezGonz
+Tu nombre ya vive en la memoria del proceso.
+== Codigo de salida: 0 ==
+ubuntu@inclusive-hornbill:~/proyectos/EnsambladorInfra01/clase-02$ alez
+Command 'alez' not found, did you mean:
+  command 'alex' from deb alex (3.5.4.0-1)
+  command 'ale' from deb ale (0.9.0.3-6build1)
+Try: sudo apt install <deb name>
+
+4. Análisis técnico de la salida:
+
+- Truncamiento por sys_read: En clase02.asm, la llamada a la syscall sys_read (RAX = 0, RDI = 0) recibe el registro RDX = 32.
+Por este motivo, el sistema operativo corta la lectura exactamente en el byte 32,
+guardando en la variable .bss (nombre resb 32) únicamente la cadena JuanCarlosAlejandroFernandezGonz.
+
+- Evaluación de salto de línea: Como el buffer se llena con las primeras 32 letras antes de alcanzar la tecla Enter,
+el byte 10 (\n) no entra en la memoria asignada. La comprobación cmp byte [nombre + rax - 1], 10
+determina que el último byte guardado es la letra z (ASCII 122), por lo que la longitud en [lon] se mantiene en 32 bytes.
+
+- Impresión del saludo: sys_write imprime los 32 bytes capturados, mostrando en pantalla únicamente JuanCarlosAlejandroFernandezGonz.
+
+- Sobran caracteres en la entrada estándar (stdin): Los caracteres excedentes alez junto con el salto de línea de la tecla Enter
+permanecieron intactos en el búfer de entrada del sistema operativo.
+
+- Comportamiento en el Shell (alez: Command not found): Cuando ./clase02 finaliza, la consola Bash recupera el control de la terminal y lee los bytes
+no consumidos que quedaron varados en stdin. Bash los procesa como un comando directo, arrojando el error Command 'alez' not found.
+
+5. Verificación del código de salida:
+
+A nivel de proceso, el programa se ejecuta y termina sin colapsar:
+
+echo $?
+
+Resultado obtenido:
+
+0
+
+**Explicacion**
+
+El programa retorna 0 de manera limpia mediante sys_exit. El mensaje de comando no encontrado es generado externamente
+por la terminal Bash al recuperar el control y procesar el sobrante alez de la entrada estándar.
+
 [RESOLVER AQUÍ: ¿Qué ocurre en el caso 3? Explica por qué, citando qué línea del `.asm` lo provoca.]
+
+En el caso 3, el programa solo lee e imprime los primeros 32 bytes ingresados (`JuanCarlosAlejandroFernandezGonz`).
+Las letras excedentes (`alez` junto con el salto de línea) no son consumidas por el ejecutable y permanecen en el búfer de la entrada estándar (`stdin`).
+Al finalizar el programa con código de salida 0, la terminal Bash retoma el control, lee la cadena pendiente `alez` e intenta ejecutarla como un comando,
+mostrando el error `Command 'alez' not found`.
+
+Este comportamiento es provocado por la línea 76 de `clase02.asm`:
+
+``asm
+mov rdx, 32               ; a lo sumo 32 bytes (no desbordamos)
+
 
 ### A.2.2 (5 pts)
 Ejecuta `strace -e trace=read,write ./clase02` con un nombre de 10 letras (pega el `strace` en `entrega.md`) y responde:
@@ -244,8 +454,45 @@ Ejecuta `strace -e trace=read,write ./clase02` con un nombre de 10 letras (pega 
 1. ¿Cuántos bytes devuelve la llamada `read`?
 2. ¿Por qué ese número y no 32 (el tamaño del buffer)?
 3. ¿En qué variable del código se guarda ese valor de retorno?
+*******************************************************************
 
-[RESOLVER AQUÍ: ]
+
+**primera pregunta: cuantos bites devuelve la llamada read**
+
+La llamada read devuelve 11 bytes.
+
+En la salida del strace, la línea read(0, "JuanCarlos\n", 32) = 11 indica que el kernel leyó 11 bytes en total desde la entrada estándar (stdin)
+
+Esos 11 bytes se componen de los 10 caracteres del nombre "JuanCarlos" más 1 byte del salto de línea (\n) generado al presionar la tecla Enter.
+
+El sistema operativo retorna esa cifra en el registro RAX, reflejando la cantidad exacta de bytes capturados en la operación de lectura.
+
+**Segunda pregunta: por que ese numero y no 32**
+
+La llamada al sistema sys_read devuelve 11 y no 32 porque retorna la cantidad real de bytes ingresados
+por el usuario desde el teclado hasta que presiona la tecla Enter (\n).
+
+El valor 32 (cargado en el registro RDX en el archivo clase02.asm) representa únicamente el límite máximo de espacio reservado en
+la memoria RAM para evitar un desbordamiento de búfer (buffer overflow).
+
+sys_read no obliga al usuario a escribir 32 caracteres; tan pronto como se detecta la tecla Enter (\n), la función detiene la
+lectura y devuelve la suma exacta de los caracteres recibidos.
+
+**Tercera pregunta: En que variable del codigo se guarda ese valor de retorno**
+
+Ese valor de retorno se guarda en la variable lon.
+
+Cuando la llamada al sistema sys_read finaliza, el kernel de Linux deposita la cantidad real de bytes leídos en el registro RAX.
+
+En el código fuente clase02.asm, inmediatamente después de ejecutar la instrucción syscall, el programa guarda ese resultado
+en la memoria mediante la instrucción:
+
+mov [lon], rax
+
+La variable lon está definida en la sección .bss (lon resq 1) y almacena este número para indicarle posteriormente a la syscall sys_write cuántos
+bytes del nombre debe imprimir en pantalla.
+
+
 
 ### A.2.3 (5 pts) — Modificación obligatoria
 En tu copia de `clase02.asm`, cambia **dos** cosas y haz que siga compilando y ejecutando:
@@ -254,6 +501,29 @@ En tu copia de `clase02.asm`, cambia **dos** cosas y haz que siga compilando y e
 2. Cambia la despedida (`despedida`) a una frase tuya.
 
 Pega en `entrega.md` el bloque `.data` modificado y la salida de tu programa con el nombre `Gandalf`.
+*************************************************
+
+**Bloque con cambios atribuidos a las intrucciones 1 y 2**
+
+section .data
+    titulo    db "LA LEYENDA DEL REGISTRO v0.2", 10
+    len_titulo equ $ - titulo
+    pregunta  db "Como se llama el heroe? (max 31 letras)", 10
+    len_pregunta equ $ - pregunta
+    saludo   db "El reino te da la bienvenida heroe salvador "
+    len_saludo equ $ - saludo
+    despedida db "Que las llamadas al sistema protejan tu camino. Tu nombre y hazañas serán siempre recordadas.", 10
+    len_despedida equ $ - despedida
+    salto     db 10                                    ; un salto de linea suelto
+
+
+**Salida del programa con el nombre Gandalf**
+
+LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+Gandalf
+El reino te da la bienvenida heroe salvador Gandalf
+Que las llamadas al sistema protejan tu camino. Tu nombre y hazañas serán siempre recordadas.
 
 ---
 
