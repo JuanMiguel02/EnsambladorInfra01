@@ -14,14 +14,28 @@ Los programas están escritos para **Linux x86-64** en sintaxis NASM y usan llam
 
 Cada clase se puede ensamblar y enlazar de forma independiente con el script `compilar.sh` de su carpeta. Se requiere un entorno Linux con NASM y `ld` instalados; por ejemplo, una VM de Ubuntu.
 
+## Compilar una clase
+
+Desde Linux, entra en la carpeta de la clase que quieras ejecutar y corre su script. Por ejemplo:
+
+```bash
+cd clase-01
+bash compilar.sh
+```
+
+Repite el procedimiento desde `clase-02/` o `clase-03/` para las demás clases.
+
+
+## Trabajo del examen
+
+La carpeta `examen/` reúne las evidencias y respuestas de las partes práctica y teórica. También contiene las modificaciones realizadas sobre las clases: `clase02m.asm` personaliza el saludo y la despedida, mientras que `clase03m.asm` agrega un mensaje cuando la fuerza del héroe es cero y continúa con el flujo normal del programa. El archivo `heroe.asm` es un ejercicio independiente que solicita y muestra un nombre sin usar libc.
+
 ## Estructura del repositorio
 
 ```text
 .
 ├── README.md                 # Descripción del repositorio y de la solución
-├── heroe.asm                 # Ejemplo independiente: solicita y muestra un nombre
-├── examen.md                 # Enunciado y respuestas del examen
-├── entrega.md                # Evidencias y respuestas de la entrega actual
+├── examen.md                 # Enunciado del parcial
 ├── clase-01/
 │   ├── clase01.asm           # Código fuente de la clase 1
 │   ├── clase01.md            # Guía y explicación de la clase 1
@@ -37,40 +51,17 @@ Cada clase se puede ensamblar y enlazar de forma independiente con el script `co
 │   ├── README.md             # Explicación de reglas y conceptos de la clase 3
 │   ├── GUION.md              # Guion didáctico para presentar la clase 3
 │   └── compilar.sh           # Ensambla y enlaza clase03.asm
-└── examen/                   # Carpeta prevista para organizar la entrega del parcial
-    ├── entrega.md            # Evidencias, salidas y respuestas de la entrega
-    ├── clase-01/             # Clases copiadas con las modificaciones del examen
-    ├── clase-02/
-    └── clase-03/
+└── examen/
+    ├── entrega.md            # Respuestas, explicaciones, salidas y evidencias
+    ├── trace1.txt            # Traza de syscalls de la clase 1
+    ├── clase01.asm           # Código de la clase 1 usado en el examen
+    ├── clase02m.asm          # Clase 2 con saludo y despedida personalizados
+    ├── clase03m.asm          # Clase 3 con el mensaje adicional para FUE = 0
+    ├── heroe.asm             # Programa independiente que lee e imprime un nombre
+    ├── clase01, clase02m,
+    │   clase03m, heroe       # Ejecutables generados
+    └── clase01.o, clase02m.o,
+        clase03m.o, heroe.o   # Archivos objeto generados por NASM
 ```
 
-Los archivos objeto (`.o`) y ejecutables que aparecen en las carpetas de clase son productos de compilación; pueden regenerarse con los scripts correspondientes. La carpeta `examen/` se usará para reunir `entrega.md` y las clases modificadas para el parcial.
-
-## Compilar una clase
-
-Desde Linux, entra en la carpeta de la clase que quieras ejecutar y corre su script. Por ejemplo:
-
-```bash
-cd clase-01
-bash compilar.sh
-```
-
-Repite el procedimiento desde `clase-02/` o `clase-03/` para las demás clases.
-# Fundamentos de Infraestructura - Ensamblador
-
-Curso de ensamblador x86-64 (NASM) para "Fundamentos de Infraestructura",
-Ingenieria de Sistemas.
-
-Cada clase es una carpeta con:
-
-- **`clase-XX.asm`** - el codigo ensamblado (sin libc, syscalls crudos).
-- **`compilar.sh`** - compila y ejecuta la clase.
-- **`claseXX.md`** - la explicacion pedagogica de la clase.
-
-Las clases:
-
-- **`clase-01/`** - "El heroe habla" - el heroe imprime su nombre con `write` (syscall 1) y se despide con `exit` (syscall 60).
-- **`clase-02/`** - "El heroe escucha" - el heroe aprende `read` (syscall 0) y valida entradas del usuario.
-- **`clase-03/`** - "Los atributos del heroe" - el heroe valida FUE/AGI, calcula Vida y Nivel con `add`/`sub`/`inc`, decide ELITE vs NOVATO con `cmp`/`jge` e imprime numeros.
-
-Cada carpeta es independiente. Compila la clase 1 primero, luego la clase 2, y asi sucesivamente.
+En `examen/entrega.md` se documentan la compilación y ejecución de las clases, las pruebas de entrada, las trazas con `strace`, las modificaciones solicitadas y las respuestas conceptuales. Los archivos objeto (`.o`) y ejecutables son productos de compilación y pueden regenerarse con NASM y `ld`.

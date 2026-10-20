@@ -18,11 +18,12 @@
 |Juan Camilo Agudelo Sánchez |
 | Jerónimo Delgado Estrada   |
 
+El código fuente de todas las modificaciones realizadas se encuentra en el siguiente repositorio de GitHub.
 
 **Link Del Repositorio**
 ```text
 https://github.com/JuanMiguel02/EnsambladorInfra01/tree/main
-
+```
 ---
 
 ## Instrucciones generales
@@ -166,7 +167,7 @@ Por lo tanto, se confirma que el ensamblado, el enlazado y la ejecución del pro
 
 ---
 
-https://github.com/JuanMiguel02/EnsambladorInfra01.githttps://github.com/JuanMiguel02/EnsambladorInfra01.git## A.1.2. Análisis de llamadas al sistema con `strace`
+### A.1.2. Análisis de llamadas al sistema con `strace`
 
 ### 1. Comando ejecutado
 
@@ -502,13 +503,26 @@ Ejecuta `strace -e trace=read,write ./clase02` con un nombre de 10 letras (pega 
 3. ¿En qué variable del código se guarda ese valor de retorno?
 *******************************************************************
 
-**comando de ejecucion con strace**
+**Comando de ejecucion con strace**
  
 ```bash
-  strace ./clase02
- ```
+strace -e trace=read,write ./clase02
+write(1, "LA LEYENDA DEL REGISTRO v0.2\n", 29LA LEYENDA DEL REGISTRO v0.2
+) = 29
+write(1, "Como se llama el heroe? (max 31 "..., 40Como se llama el heroe? (max 31 letras)
+) = 40
+read(0JuanCarlos
+, "JuanCarlos\n", 32)             = 11
+write(1, "Bienvenido al reino, ", 21Bienvenido al reino, )   = 21
+write(1, "JuanCarlos", 10JuanCarlos)              = 10
+write(1, "\n", 1
+)                       = 1
+write(1, "Tu nombre ya vive en la memoria "..., 45Tu nombre ya vive en la memoria del proceso.
+) = 45
++++ exited with 0 +++
+```
 
-**primera pregunta: cuantos bites devuelve la llamada read**
+**Primera pregunta: ¿Cuántos bytes devuelve la llamada read?**
 
 La llamada read devuelve 11 bytes.
 
@@ -518,7 +532,7 @@ Esos 11 bytes se componen de los 10 caracteres del nombre "JuanCarlos" más 1 by
 
 El sistema operativo retorna esa cifra en el registro RAX, reflejando la cantidad exacta de bytes capturados en la operación de lectura.
 
-**Segunda pregunta: por que ese numero y no 32**
+**Segunda pregunta: ¿Por qué ese numero y no 32?**
 
 La llamada al sistema sys_read devuelve 11 y no 32 porque retorna la cantidad real de bytes ingresados
 por el usuario desde el teclado hasta que presiona la tecla Enter (\n).
@@ -529,7 +543,7 @@ la memoria RAM para evitar un desbordamiento de búfer (buffer overflow).
 `sys_read` no obliga al usuario a escribir 32 caracteres; tan pronto como se detecta la tecla Enter (\n), la función detiene la
 lectura y devuelve la suma exacta de los caracteres recibidos.
 
-**Tercera pregunta: En que variable del codigo se guarda ese valor de retorno**
+**Tercera pregunta: ¿En qué variable del código se guarda ese valor de retorno?**
 
 Ese valor de retorno se guarda en la variable lon.
 
@@ -986,19 +1000,19 @@ El resultado confirma que el programa terminó con código de salida `0`.
 
 **2.** `mov rax, 60` seguido de `syscall` es la forma estándar de terminar un programa en este curso.
 [RESOLVER AQUÍ: V, En la arquitectura Linux x86-64, el número 60 identifica la llamada al sistema `sys_exit`[cite: 2].
-Al cargar `60` en `RAX` y ejecutar `syscall`, el proceso le solicita al kernel finalizar la ejecución de forma ordenada[cite: 2]. ]
+Al cargar `60` en `RAX` y ejecutar `syscall`, el proceso le solicita al kernel finalizar la ejecución de forma ordenada. ]
 
 ---
 
 **3.** `resb 32` escribe 32 bytes de ceros en el binario.
-[RESOLVER AQUÍ: F, `resb` (*Reserve Bytes*) se utiliza dentro de la sección `.bss` para reservar espacio en la memoria RAM que se asignará dinámicamente en tiempo de ejecución[cite: 2].
+[RESOLVER AQUÍ: F, `resb` (*Reserve Bytes*) se utiliza dentro de la sección `.bss` para reservar espacio en la memoria RAM que se asignará dinámicamente en tiempo de ejecución.
 No escribe los 32 bytes físicamente dentro del archivo binario almacenado en disco, lo que evita inflar el tamaño del ejecutable. ]
 
 ---
 
 **4.** En clase 2, el valor de `lon` (la longitud leída) viene de un `equ` fijo calculado por el ensamblador.
-[RESOLVER AQUÍ: F, En la clase 2, el valor de `lon` se calcula de forma dinámica en tiempo de ejecución; lo entrega el kernel en el registro `RAX` al finalizar la syscall `sys_read` y se guarda en la variable con la instrucción `mov [lon], rax`[cite: 2].
-Las constantes con `equ` solo sirven para calcular longitudes de cadenas fijas en tiempo de ensamblado[cite: 2] ]
+[RESOLVER AQUÍ: F, En la clase 2, el valor de `lon` se calcula de forma dinámica en tiempo de ejecución; lo entrega el kernel en el registro `RAX` al finalizar la syscall `sys_read` y se guarda en la variable con la instrucción `mov [lon], rax`.
+Las constantes con `equ` solo sirven para calcular longitudes de cadenas fijas en tiempo de ensamblado. ]
 
 ---
 
