@@ -242,7 +242,9 @@ Documenta la salida de cada caso en `entrega.md`.
 
 1. Desde el directorio clase-02, se ejecutó el script de compilacion y ejecucion automatica:
 
-./compilar.sh
+ ```bash
+  ./compilar.sh
+ ```
 
 ## Explicacion ##
 
@@ -256,19 +258,23 @@ Ejecución: ./clase02 (inicia el programa para recibir el nombre por teclado).
 
 2. Entrada inducida:
 
-Nombre ingresado: Jose
+ ```text
+  Nombre ingresado: Jose
+ ```
 
 3. Salida completa obtenida:
 
-== Ensamblando (traduciendo asm -> binario) ==
-== Enlazando (creando el ejecutable) ==
-== Ejecutando (escribe el nombre del heroe y presiona Enter) ==
-LA LEYENDA DEL REGISTRO v0.2
-Como se llama el heroe? (max 31 letras)
-jose
-Bienvenido al reino, jose
-Tu nombre ya vive en la memoria del proceso.
-== Codigo de salida: 0 ==
+  ```text
+   == Ensamblando (traduciendo asm -> binario) ==
+   == Enlazando (creando el ejecutable) ==
+   == Ejecutando (escribe el nombre del heroe y presiona Enter) ==
+   LA LEYENDA DEL REGISTRO v0.2
+   Como se llama el heroe? (max 31 letras)
+   Jose
+   Bienvenido al reino, Jose
+   Tu nombre ya vive en la memoria del proceso.
+   == Codigo de salida: 0 ==
+  ```
 
 4. Analisis tecnico de la salida:
 
@@ -290,11 +296,15 @@ Al ser verdadero, decrementa RAX (dec rax), ajustando la longitud real del nombr
 
 Inmediatamente después de la ejecución, se verificó el código devuelto al entorno:
 
-echo $?
+  ```bash
+   echo $?
+  ```
 
 Resultado obtenido:
 
-0
+ ```text
+   +++exited with 0+++
+ ```
 
 **Explicación:**
 
@@ -307,7 +317,9 @@ El valor 0 confirma que el programa terminó de manera exitosa a través de la l
 
 Desde la carpeta clase-02, se ejecutó nuevamente el script de automatización:
 
-./compilar.sh
+  ```bash
+   ./compilar.sh
+  ```
 
 **Explicación:**
 
@@ -316,26 +328,29 @@ enlaza con ld produciendo el ejecutable clase02 e inicia inmediatamente su ejecu
 
 2. Entrada introducida:
 
-Nombre ingresado: juanCarlosAlejandroFernandezLopez (se escriben 33 caracteres en total incluyendo los caracteres excedentes z y la tecla Enter).
+  ```text
+   juanCarlosAlejandroFernandezLopez
+  ```
 
 3. Salida completa obtenida: 
 
-== Ensamblando (traduciendo asm -> binario) ==
-== Enlazando (creando el ejecutable) ==
-== Ejecutando (escribe el nombre del heroe y presiona Enter) ==
-LA LEYENDA DEL REGISTRO v0.2
-Como se llama el heroe? (max 31 letras)
-juanCarlosAlejandroFernandezLopez
-Bienvenido al reino, juanCarlosAlejandroFernandezLope
-Tu nombre ya vive en la memoria del proceso.
-== Codigo de salida: 0 ==
-ubuntu@inclusive-hornbill:~/proyectos/EnsambladorInfra01/clase-02$ z
-z: command not found
+  ```text
+   == Ensamblando (traduciendo asm -> binario) ==
+   == Enlazando (creando el ejecutable) ==
+   == Ejecutando (escribe el nombre del heroe y presiona Enter) ==
+   LA LEYENDA DEL REGISTRO v0.2
+   Como se llama el heroe? (max 31 letras)
+   juanCarlosAlejandroFernandezLopez
+   Bienvenido al reino, juanCarlosAlejandroFernandezLope
+   Tu nombre ya vive en la memoria del proceso.
+   == Codigo de salida: 0 ==
+   ubuntu@inclusive-hornbill:~/proyectos/EnsambladorInfra01/clase-02$ z
+   z: command not found
+  ```
 
 4. Análisis técnico de la salida
 
 - Límite de lectura con sys_ read: En el código fuente clase02.asm, la lectura por teclado está configurada con mov rdx, 32. Por lo tanto,
-el kernel solo copia los primeros 32 bytes desde la entrada estándar (stdin) hacia la sección .bss (nombre resb 32).
 
 - Ausencia de salto de línea en el buffer: Los 32 bytes almacenados corresponden exactamente al texto juanCarlosAlejandroFernandezLope.
 Como el número de caracteres ingresados superó el límite del buffer antes de llegar al Enter, el byte 10 (\n) no entró dentro del arreglo reservado.
@@ -355,11 +370,15 @@ leyó automáticamente el carácter z pendiente en stdin e intentó ejecutarlo c
 
 El programa finaliza de forma correcta respecto al proceso:
 
-echo $?
+ ```bash
+  echo $?
+ ```
 
 Resultado obtenido:
 
-0
+ ```text
+  0
+ ```
 
 **Explicación:**
 
@@ -374,7 +393,9 @@ El mensaje de error posterior pertenece a la terminal Bash al intentar interpret
 
 Desde el directorio clase-02, se ejecutó nuevamente el script de automatización:
 
-./compilar.sh
+ ```bash
+  ./compilar.sh
+ ```
 
 **Explicacion**
 
@@ -383,24 +404,29 @@ enlaza el archivo objeto con ld (ld clase02.o -o clase02) y ejecuta el ejecutabl
 
 2. Entrada introducida:
 
-Nombre ingresado: JuanCarlosAlejandroFernandezGonzalez (se introducen 36 caracteres en la terminal más la tecla Enter).
+ ```text
+  JuanCarlosAlejandroFernandezGonzalez
+ ```
+ 
 
 3. Salida obtenida:
 
-== Ensamblando (traduciendo asm -> binario) ==
-== Enlazando (creando el ejecutable) ==
-== Ejecutando (escribe el nombre del heroe y presiona Enter) ==
-LA LEYENDA DEL REGISTRO v0.2
-Como se llama el heroe? (max 31 letras)
-JuanCarlosAlejandroFernandezGonzalez
-Bienvenido al reino, JuanCarlosAlejandroFernandezGonz
-Tu nombre ya vive en la memoria del proceso.
-== Codigo de salida: 0 ==
-ubuntu@inclusive-hornbill:~/proyectos/EnsambladorInfra01/clase-02$ alez
-Command 'alez' not found, did you mean:
-  command 'alex' from deb alex (3.5.4.0-1)
-  command 'ale' from deb ale (0.9.0.3-6build1)
-Try: sudo apt install <deb name>
+ ```text
+  == Ensamblando (traduciendo asm -> binario) ==
+  == Enlazando (creando el ejecutable) ==
+  == Ejecutando (escribe el nombre del heroe y presiona Enter) ==
+  LA LEYENDA DEL REGISTRO v0.2
+  Como se llama el heroe? (max 31 letras)
+  JuanCarlosAlejandroFernandezGonzalez
+  Bienvenido al reino, JuanCarlosAlejandroFernandezGonz
+  Tu nombre ya vive en la memoria del proceso.
+  == Codigo de salida: 0 ==
+  ubuntu@inclusive-hornbill:~/proyectos/EnsambladorInfra01/clase-02$ alez
+  Command 'alez' not found, did you mean:
+   command 'alex' from deb alex (3.5.4.0-1)
+   command 'ale' from deb ale (0.9.0.3-6build1)
+  Try: sudo apt install <deb name>
+ ```
 
 4. Análisis técnico de la salida:
 
@@ -424,18 +450,21 @@ no consumidos que quedaron varados en stdin. Bash los procesa como un comando di
 
 A nivel de proceso, el programa se ejecuta y termina sin colapsar:
 
-echo $?
+ ```bash
+  echo $?
+ ```
 
 Resultado obtenido:
 
-0
+ ```text
+  0
+ ```
 
 **Explicacion**
 
 El programa retorna 0 de manera limpia mediante sys_exit. El mensaje de comando no encontrado es generado externamente
 por la terminal Bash al recuperar el control y procesar el sobrante alez de la entrada estándar.
 
-[RESOLVER AQUÍ: ¿Qué ocurre en el caso 3? Explica por qué, citando qué línea del `.asm` lo provoca.]
 
 En el caso 3, el programa solo lee e imprime los primeros 32 bytes ingresados (`JuanCarlosAlejandroFernandezGonz`).
 Las letras excedentes (`alez` junto con el salto de línea) no son consumidas por el ejecutable y permanecen en el búfer de la entrada estándar (`stdin`).
@@ -456,12 +485,17 @@ Ejecuta `strace -e trace=read,write ./clase02` con un nombre de 10 letras (pega 
 3. ¿En qué variable del código se guarda ese valor de retorno?
 *******************************************************************
 
+**comando de ejecucion con strace**
+ 
+```bash
+  strace ./clase02
+ ```
 
 **primera pregunta: cuantos bites devuelve la llamada read**
 
 La llamada read devuelve 11 bytes.
 
-En la salida del strace, la línea read(0, "JuanCarlos\n", 32) = 11 indica que el kernel leyó 11 bytes en total desde la entrada estándar (stdin)
+En la salida del strace, la línea `read(0, "JuanCarlos\n", 32) = 11` indica que el kernel leyó 11 bytes en total desde la entrada estándar (stdin)
 
 Esos 11 bytes se componen de los 10 caracteres del nombre "JuanCarlos" más 1 byte del salto de línea (\n) generado al presionar la tecla Enter.
 
@@ -475,21 +509,22 @@ por el usuario desde el teclado hasta que presiona la tecla Enter (\n).
 El valor 32 (cargado en el registro RDX en el archivo clase02.asm) representa únicamente el límite máximo de espacio reservado en
 la memoria RAM para evitar un desbordamiento de búfer (buffer overflow).
 
-sys_read no obliga al usuario a escribir 32 caracteres; tan pronto como se detecta la tecla Enter (\n), la función detiene la
+`sys_read` no obliga al usuario a escribir 32 caracteres; tan pronto como se detecta la tecla Enter (\n), la función detiene la
 lectura y devuelve la suma exacta de los caracteres recibidos.
 
 **Tercera pregunta: En que variable del codigo se guarda ese valor de retorno**
 
 Ese valor de retorno se guarda en la variable lon.
 
-Cuando la llamada al sistema sys_read finaliza, el kernel de Linux deposita la cantidad real de bytes leídos en el registro RAX.
+Cuando la llamada al sistema `sys_read` finaliza, el kernel de Linux deposita la cantidad real de bytes leídos en el registro RAX.
 
 En el código fuente clase02.asm, inmediatamente después de ejecutar la instrucción syscall, el programa guarda ese resultado
 en la memoria mediante la instrucción:
 
-mov [lon], rax
-
-La variable lon está definida en la sección .bss (lon resq 1) y almacena este número para indicarle posteriormente a la syscall sys_write cuántos
+ ```bash
+  mov [lon], rax
+ ```
+La variable lon está definida en la sección `.bss (lon resq 1)` y almacena este número para indicarle posteriormente a la syscall sys_write cuántos
 bytes del nombre debe imprimir en pantalla.
 
 
@@ -519,11 +554,13 @@ section .data
 
 **Salida del programa con el nombre Gandalf**
 
-LA LEYENDA DEL REGISTRO v0.2
-Como se llama el heroe? (max 31 letras)
-Gandalf
-El reino te da la bienvenida heroe salvador Gandalf
-Que las llamadas al sistema protejan tu camino. Tu nombre y hazañas serán siempre recordadas.
+ ```text
+  LA LEYENDA DEL REGISTRO v0.2
+  Como se llama el heroe? (max 31 letras)
+  Gandalf
+  El reino te da la bienvenida heroe salvador Gandalf
+  Que las llamadas al sistema protejan tu camino. Tu nombre y hazañas serán siempre recordadas.
+ ```
 
 ---
 
