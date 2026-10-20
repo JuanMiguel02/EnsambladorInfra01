@@ -22,7 +22,7 @@ El código fuente de todas las modificaciones realizadas se encuentra en el sigu
 
 **Link Del Repositorio**
 ```text
-https://github.com/JuanMiguel02/EnsambladorInfra01/tree/main
+https://github.com/JuanMiguel02/EnsambladorInfra01
 ```
 ---
 
