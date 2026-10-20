@@ -1041,25 +1041,29 @@ Para que el código imprimiera el `7`, faltaba convertir el número a `ASCII`, e
 
 **1.** ¿Por qué en clase 2 se reserva `resb 32` para un nombre de "máximo 31 letras"?
 
-[RESOLVER AQUÍ: ]
+ **Respuesta:**
+ Se reservan 32 bytes porque al presionar el enter al enviar el nombre, se incluye el salto de linea **(LF)**, para permitir un nombre de hasta 31 letras, se necesita 1 byte adicional para almacenar ese salto de linea.
 
 ---
 
 **2.** ¿Por qué la clase 2 quita el último byte (LF) del nombre antes de imprimirlo, usando `dec rax`?
 
-[RESOLVER AQUÍ: ]
+ **Respuesta:**
+ Se quita el LF del nombre porque al presionar el enter se guarda un salto en linea al final del nombre, si no se quita con el **'dec rax'**, al imprimir el saludo quedaría un salto de linea entre el saludo donde imprime el nombre y la parte de la despedida.
 
 ---
 
 **3.** En clase 3, ¿por qué el programa valida FUE y AGI por separado (0–9) **y además** valida que la suma sea ≤ 9?
 
-[RESOLVER AQUÍ: ]
+ **Respuesta:**
+ La fuerza y la agilidad se validan por separado para asegurar que el usuario haya ingresado un digito ASCII válido por cada variable, es decir, que haya ingresado un valor entre 0 y 9 para la fuerza y uno entre 0 y 9 para la agilidad. Si ingresa un numero con mas de una cifra solo guarda el primer digito. También se valida que la suma sea menor a 9 porque es parte del juego, ya que solo se pueden repartir 9 puntos entre fuerza y agilidad, de lo contrario saca un error.
 
 ---
 
 **4.** ¿Qué significa `equ $ - etiqueta` y por qué es útil en vez de contar los bytes a mano?
 
-[RESOLVER AQUÍ: ]
+ **Respuesta:**
+ Significa restar la posición actual de memoria, representado por **'$'**, de la posición donde inicia el texto, (la etiqueta) esto sirve para calcular automáticamente el tamaño exacto del mensaje en bytes. Es útil para evitar contar las letras a mano, o en caso de que se cambie la frase, esto cambia automáticamente el tamaño.
 
 ---
 
@@ -1068,7 +1072,14 @@ Para que el código imprimiera el `7`, faltaba convertir el número a `ASCII`, e
 **1. (2 pts)** Escribe el bloque exacto (registros + `syscall`) para **imprimir la cadena**
 `"FIN\n"` (con salto de línea) usando `sys_write`. Supón que la cadena está en la etiqueta `fin` y su longitud en `len_fin`.
 
-[RESOLVER AQUÍ: ]
+ **Respuesta:**
+```asm
+mov rax, 1
+mov rdi, 1
+mov rsi, fin
+mov rdx, len_fin
+syscall
+```
 
 ---
 
@@ -1078,8 +1089,28 @@ Para que el código imprimiera el `7`, faltaba convertir el número a `ASCII`, e
 - Validar que sea un dígito entre `'0'` (48) y `'9'` (57); si no lo es, saltar a una etiqueta `.mal`.
 - Si es dígito, convertirlo a número (restando 48) y guardarlo en la variable numérica `n` (1 byte, de `.bss`).
 
-[RESOLVER AQUÍ: ]
+ **Respuesta:**
+```asm
+section .bss
+	b resb 2
+	n resb 1
 
+section .text
+	mov rax, 0
+	mov rdi, 0
+	mov rsi, b
+	mov rdx, 2
+	syscall
+
+	cmp byte [b], 48
+	jb .mal
+	cmp byte [b], 57
+	ja .mal
+
+	mov al, byte [b]
+	sub al, 48
+	mov [n], al
+```
 ---
 
 # RÚBRICA DE CALIFICACIÓN
