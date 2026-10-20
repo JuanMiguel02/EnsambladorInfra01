@@ -924,27 +924,31 @@ El resultado confirma que el programa terminó con código de salida `0`.
 > Marca V o F. Si es F, escribe la corrección. Una respuesta correcta sin justificación vale 1 pt.
 
 **1.** `db` declara 8 bits (1 byte) por elemento de datos.
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: V, `db` significa *Define Byte*, directiva que asigna e inicializa 1 byte (8 bits) por cada elemento declarado. ]
 
 ---
 
 **2.** `mov rax, 60` seguido de `syscall` es la forma estándar de terminar un programa en este curso.
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: V, En la arquitectura Linux x86-64, el número 60 identifica la llamada al sistema `sys_exit`[cite: 2].
+Al cargar `60` en `RAX` y ejecutar `syscall`, el proceso le solicita al kernel finalizar la ejecución de forma ordenada[cite: 2]. ]
 
 ---
 
 **3.** `resb 32` escribe 32 bytes de ceros en el binario.
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: F, `resb` (*Reserve Bytes*) se utiliza dentro de la sección `.bss` para reservar espacio en la memoria RAM que se asignará dinámicamente en tiempo de ejecución[cite: 2].
+No escribe los 32 bytes físicamente dentro del archivo binario almacenado en disco, lo que evita inflar el tamaño del ejecutable. ]
 
 ---
 
 **4.** En clase 2, el valor de `lon` (la longitud leída) viene de un `equ` fijo calculado por el ensamblador.
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: F, En la clase 2, el valor de `lon` se calcula de forma dinámica en tiempo de ejecución; lo entrega el kernel en el registro `RAX` al finalizar la syscall `sys_read` y se guarda en la variable con la instrucción `mov [lon], rax`[cite: 2].
+Las constantes con `equ` solo sirven para calcular longitudes de cadenas fijas en tiempo de ensamblado[cite: 2] ]
 
 ---
 
 **5.** `add al, 48` convierte un dígito numérico (0–9) en su carácter ASCII imprimible.
-[RESOLVER AQUÍ: ]
+[RESOLVER AQUÍ: V, El código ASCII del carácter `'0'` equivale al número decimal 48. Al sumar 48 a un valor entero comprendido entre 0 y 9,
+se traslada su valor al rango ASCII correspondiente (`'0'` a `'9'`), permitiendo que el sistema operativo lo imprima como texto formateado en pantalla.]
 
 ---
 
