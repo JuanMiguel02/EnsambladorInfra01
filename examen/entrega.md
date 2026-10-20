@@ -917,7 +917,7 @@ El resultado confirma que el programa terminó con código de salida `0`.
 - **Llamada `read`:** utiliza el número `0` para leer la entrada estándar y guardar los bytes en el buffer.
 - **Tratamiento del salto de línea:** se comprueba si el último byte leído es `10`. Si corresponde al Enter, se reduce la longitud para no imprimir ese carácter como parte del nombre.
 - **Finalización:** la llamada al sistema `exit`, identificada por el número `60`, termina el programa con código `0`.
-]
+
 ---
 
 # PARTE B — TEORÍA: preguntas (40 pts)
@@ -1224,3 +1224,11 @@ Antes de entregar, verifica que tu carpeta `examen/` contenga:
 
 **Recuerda:** el héroe del examen no es el que más rápido termina, sino el que
 puede explicar cada línea que escribió.
+
+**Integrantes**
+| Nombre                     |
+|----------------------------|
+|Juan Miguel Henao Gaviria   |
+| Valeria Zapata Giraldo     |
+|Juan Camilo Agudelo Sánchez |
+| Jerónimo Delgado Estrada   |
