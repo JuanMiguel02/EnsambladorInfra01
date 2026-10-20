@@ -1,10 +1,27 @@
 # Examen — La Leyenda del Registro
 
 **Asignatura:** Fundamentos de Infraestructura
+
 **Unidad:** Ensamblador x86-64 (NASM) — Clases 1, 2 y 3
+
 **Duración:** 90 minutos
+
 **Modalidad:** individual, en la VM de Ubuntu con NASM instalado
+
 **Material permitido:** las carpetas `clase-01/`, `clase-02/`, `clase-03/` y la documentación de syscalls de Linux. **No** se permite internet, IA generativa ni copiar entre estudiantes.
+
+**Integrantes**
+| Nombre                     |
+|----------------------------|
+|Juan Miguel Henao Gaviria   |
+| Valeria Zapata Giraldo     |
+|Juan Camilo Agudelo Sánchez |
+| Jerónimo Delgado Estrada   |
+
+
+**Link Del Repositorio**
+```text
+https://github.com/JuanMiguel02/EnsambladorInfra01/tree/main
 
 ---
 
@@ -540,6 +557,7 @@ Pega en `entrega.md` el bloque `.data` modificado y la salida de tu programa con
 
 **Bloque con cambios atribuidos a las intrucciones 1 y 2**
 
+```nasm
 section .data
     titulo    db "LA LEYENDA DEL REGISTRO v0.2", 10
     len_titulo equ $ - titulo
@@ -551,6 +569,7 @@ section .data
     len_despedida equ $ - despedida
     salto     db 10                                    ; un salto de linea suelto
 
+```
 
 **Salida del programa con el nombre Gandalf**
 
@@ -644,7 +663,7 @@ Con `strace -e trace=write,read,exit_group ./clase03`, usando FUE=8, AGI=2 (pega
 
 ### Salida del comando strace 
 
-```nasm
+```text
 strace -e trace=write,read,exit_group ./clase03
 
 write(1, "LA LEYENDA DEL REGISTRO v0.3\n", 29LA LEYENDA DEL REGISTRO v0.3
@@ -724,7 +743,7 @@ Requisitos:
     syscall
 ```
 ### Salida del programa
-```nasm
+```text
 LA LEYENDA DEL REGISTRO v0.3
 Tienes 9 puntos para repartir. El resto se vuelve vida (VID).
 FUE (fuerza, 0 a 9): 0

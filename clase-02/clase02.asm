@@ -31,9 +31,9 @@ section .data
     len_titulo equ $ - titulo
     pregunta  db "Como se llama el heroe? (max 31 letras)", 10
     len_pregunta equ $ - pregunta
-    saludo   db "El reino te da la bienvenida heroe salvador "
+    saludo   db "Bienvenido al reino, "
     len_saludo equ $ - saludo
-    despedida db "Que las llamadas al sistema protejan tu camino. Tu nombre y hazañas serán siempre recordadas.", 10
+    despedida db "Tu nombre ya vive en la memoria del proceso.", 10
     len_despedida equ $ - despedida
     salto     db 10                                    ; un salto de linea suelto
 
